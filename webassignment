@@ -1,0 +1,82 @@
+package seleminiprjt;
+import java.time.Duration;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+public class DemoMini {
+    static WebDriver driver;
+    static String url = "https://www.demoblaze.com/";
+    static String phone_xpath ="//div[@class='list-group']/a[2]";
+    static String sam_xpath ="//a[text()='Samsung galaxy s6']";
+    static String clickCart_css = "#cartur";
+    static String placeOrder_xpath ="//button[text()='Place Order']";
+    public static void verifyURL(String partOfURL, String page) {
+        String actURL = driver.getCurrentUrl();
+        if (actURL.contains(partOfURL)) {
+            System.out.println(page + ": Pass");
+        } else {
+            System.out.println(page + ": Fail");
+        }
+    }
+    public static void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get(url);
+    }
+    public static void selectPhone() {
+        WebDriverWait wait =new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until( ExpectedConditions.elementToBeClickable(By.xpath(phone_xpath))).click();
+        System.out.println("Phone category selected");
+    }
+    public static void selectModel() {
+        WebDriverWait wait =new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(sam_xpath))).click();
+        verifyURL("prod.html", "Select Phone");
+    }
+    public static void addToCart() {
+        WebDriverWait wait = new WebDriverWait(driver,Duration.ofSeconds(10));
+        // Click Add to cart
+        wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Add to cart"))).click();
+        // Wait for Alert
+        Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+        System.out.println("Alert text: " + alert.getText());
+        alert.accept();
+        System.out.println("Product added to cart");
+    }
+    public static void clickCart() {
+        WebDriverWait wait =new WebDriverWait(driver,Duration.ofSeconds(10));
+        wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector(clickCart_css))).click();
+        verifyURL("cart.html","Click Cart");
+    }
+    public static void placeOrder() {
+        WebDriverWait wait =new WebDriverWait(driver,Duration.ofSeconds(10));
+        // Click Place Order
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(placeOrder_xpath))).click();
+        // Wait for Name field
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name"))).sendKeys("John Doe");
+        driver.findElement(By.id("country")).sendKeys("India");
+        driver.findElement(By.id("city"));
+        driver.findElement(By.id("card")).sendKeys("1234567890123456");
+        driver.findElement(By.id("month")).sendKeys("12");
+        driver.findElement(By.id("year")).sendKeys("2026");
+        // Click Purchase
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Purchase']"))).click();
+        System.out.println("Order placed successfully");
+    }
+    public static void tearDown() {
+        driver.quit();
+    }
+    public static void main(String[] args) {
+        setUp();
+        selectPhone();
+        selectModel();
+        addToCart();
+        clickCart();
+        placeOrder();
+        tearDown();
+    }
+}
